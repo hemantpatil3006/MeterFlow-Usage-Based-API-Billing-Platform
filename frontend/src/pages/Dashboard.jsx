@@ -70,7 +70,7 @@ const Dashboard = () => {
                 Welcome back, <span className="font-medium text-gray-900">{user?.name}</span>
               </span>
               <div className="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
-                {user?.name?.charAt(0).toUpperCase()}
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </div>
             </div>
           </div>
@@ -155,67 +155,58 @@ const Dashboard = () => {
 
       {/* Create API Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowModal(false)}></div>
-
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-
-            <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <form onSubmit={handleCreateApi}>
-                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                  <div className="sm:flex sm:items-start">
-                    <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                      <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                        Create New API
-                      </h3>
-                      <div className="space-y-4">
-                        <div>
-                          <label htmlFor="name" className="block text-sm font-medium text-gray-700">API Name</label>
-                          <input
-                            type="text"
-                            name="name"
-                            id="name"
-                            required
-                            className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                            value={newApiData.name}
-                            onChange={(e) => setNewApiData({...newApiData, name: e.target.value})}
-                            placeholder="e.g. Production Mobile App"
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description (optional)</label>
-                          <textarea
-                            name="description"
-                            id="description"
-                            rows="3"
-                            className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                            value={newApiData.description}
-                            onChange={(e) => setNewApiData({...newApiData, description: e.target.value})}
-                            placeholder="Usage notes for this API key..."
-                          ></textarea>
-                        </div>
-                      </div>
-                    </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-500/75" onClick={() => setShowModal(false)}>
+          <div 
+            className="relative bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <form onSubmit={handleCreateApi}>
+              <div className="px-6 py-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-6">Create New API</h3>
+                <div className="space-y-5">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">API Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      id="name"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                      value={newApiData.name}
+                      onChange={(e) => setNewApiData({...newApiData, name: e.target.value})}
+                      placeholder="e.g. Production Mobile App"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description (optional)</label>
+                    <textarea
+                      name="description"
+                      id="description"
+                      rows="3"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                      value={newApiData.description}
+                      onChange={(e) => setNewApiData({...newApiData, description: e.target.value})}
+                      placeholder="Usage notes for this API key..."
+                    ></textarea>
                   </div>
                 </div>
-                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                  <button
-                    type="submit"
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  >
-                    Create API
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
+              </div>
+              <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-5 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-indigo-600 rounded-lg text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+                >
+                  Create API
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
