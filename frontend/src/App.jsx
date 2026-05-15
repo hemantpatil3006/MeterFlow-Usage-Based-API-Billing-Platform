@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Analytics from './pages/Analytics';
 import Advanced from './pages/Advanced';
 import ApiPlayground from './pages/ApiPlayground';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -52,6 +53,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ApiPlayground />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           }
         />
