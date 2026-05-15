@@ -41,7 +41,12 @@ const ApiPlayground = () => {
 
     const startTime = performance.now();
     try {
-      const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      let baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      // Strip /api from baseURL to correctly hit the /v1 gateway
+      if (baseURL.endsWith('/api')) {
+        baseURL = baseURL.slice(0, -4);
+      }
+      
       const url = `${baseURL}${endpoint}`;
 
       const res = await axios({
