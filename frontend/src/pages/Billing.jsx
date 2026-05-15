@@ -56,10 +56,10 @@ function Billing() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex flex-col md:flex-row h-screen bg-gray-50 overflow-hidden">
       <Sidebar />
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Billing & Usage</h1>
             <p className="mt-2 text-sm text-gray-600">
@@ -75,35 +75,31 @@ function Billing() {
           )}
 
           <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-left">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Billing Period</th>
-                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">API Name</th>
-                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Requests</th>
-                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Cost (₹)</th>
-                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Status</th>
-                    <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {loading ? (
+            {loading ? (
+              <div className="px-6 py-12 text-center text-gray-500">
+                Loading billing info...
+              </div>
+            ) : bills.length === 0 ? (
+              <div className="px-6 py-16 text-center">
+                <CreditCard className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-1">No billing history</h3>
+                <p className="text-gray-500">You don't have any bills yet.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 text-left">
+                  <thead className="bg-gray-50">
                     <tr>
-                      <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
-                        Loading billing info...
-                      </td>
+                      <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Billing Period</th>
+                      <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">API Name</th>
+                      <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Requests</th>
+                      <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Cost (₹)</th>
+                      <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Status</th>
+                      <th scope="col" className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Action</th>
                     </tr>
-                  ) : bills.length === 0 ? (
-                    <tr>
-                      <td colSpan="6" className="px-6 py-12 text-center">
-                        <CreditCard className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-1">No billing history</h3>
-                        <p className="text-gray-500">You don't have any bills yet.</p>
-                      </td>
-                    </tr>
-                  ) : (
-                    bills.map((bill) => (
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {bills.map((bill) => (
                       <tr key={bill._id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                           {bill.billingPeriod}
@@ -142,11 +138,11 @@ function Billing() {
                           )}
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </main>
