@@ -21,6 +21,11 @@ const userSchema = mongoose.Schema(
       enum: ['active', 'past_due', 'canceled'],
       default: 'active',
     },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
   },
   {
     timestamps: true,

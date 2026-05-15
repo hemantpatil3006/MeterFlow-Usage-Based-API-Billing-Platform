@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Settings, CreditCard, Menu, X } from 'lucide-react';
+import { LayoutDashboard, LogOut, Settings, CreditCard, Menu, X, BarChart3, PlaySquare, Shield } from 'lucide-react';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -13,7 +13,10 @@ const Sidebar = () => {
 
   const navLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+    { name: 'Analytics', path: '/analytics', icon: <BarChart3 size={20} /> },
     { name: 'Billing', path: '/billing', icon: <CreditCard size={20} /> },
+    { name: 'Playground', path: '/playground', icon: <PlaySquare size={20} /> },
+    { name: 'Advanced', path: '/advanced', icon: <Shield size={20} /> },
     { name: 'Settings', path: '/settings', icon: <Settings size={20} /> },
   ];
 

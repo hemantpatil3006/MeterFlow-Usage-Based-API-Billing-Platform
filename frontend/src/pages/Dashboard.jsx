@@ -1,29 +1,72 @@
 import { useState, useEffect } from 'react';
-import { Plus, Key, RefreshCw, Copy, Check } from 'lucide-react';
+import { Plus, Key, RefreshCw, Copy, Check, BarChart3, DollarSign, Activity } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import api from '../services/api';
+import { io } from 'socket.io-client';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const [apis, setApis] = useState([]);
+  const [metrics, setMetrics] = useState({ totalCalls: 0, currentCost: 0, usageTrend: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [newApiData, setNewApiData] = useState({ name: '', description: '' });
   const [copiedKey, setCopiedKey] = useState(null);
 
-  // Fetch APIs on load
   useEffect(() => {
-    fetchApis();
-  }, []);
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [apisRes, metricsRes] = await Promise.all([
+          api.get('/apis'),
+          api.get('/analytics/dashboard')
+        ]);
+        setApis(apisRes.data);
+        setMetrics(metricsRes.data);
+      } catch (error) {
+        console.error('Error fetching data', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const fetchApis = async () => {
+    fetchData();
+
+    // Setup Socket.io
+    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+    
+    socket.on('connect', () => {
+      if (user && user._id) {
+        socket.emit('join_user_room', user._id);
+      }
+    });
+
+    socket.on('usage_updated', () => {
+      // Real-time counter updates
+      setMetrics((prev) => ({
+        ...prev,
+        totalCalls: prev.totalCalls + 1,
+      }));
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user?._id]);
+
+  const fetchApisAndMetrics = async () => {
     try {
-      const response = await api.get('/apis');
-      setApis(response.data);
+      const [apisRes, metricsRes] = await Promise.all([
+        api.get('/apis'),
+        api.get('/analytics/dashboard')
+      ]);
+      setApis(apisRes.data);
+      setMetrics(metricsRes.data);
     } catch (error) {
-      console.error('Error fetching APIs', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Error fetching data', error);
     }
   };
 
@@ -33,20 +76,17 @@ const Dashboard = () => {
       await api.post('/apis', newApiData);
       setNewApiData({ name: '', description: '' });
       setShowModal(false);
-      fetchApis();
+      fetchApisAndMetrics();
     } catch (error) {
       console.error('Error creating API', error);
     }
   };
 
   const handleRegenerateKey = async (apiId) => {
-    if (!window.confirm('Are you sure you want to regenerate this key? Any applications using the old key will break immediately.')) {
-      return;
-    }
-
+    if (!window.confirm('Are you sure you want to regenerate this key? Any applications using the old key will break immediately.')) return;
     try {
       await api.post(`/apis/${apiId}/regenerate`);
-      fetchApis();
+      fetchApisAndMetrics();
     } catch (error) {
       console.error('Error regenerating key', error);
     }
@@ -72,6 +112,61 @@ const Dashboard = () => {
               <div className="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
                 {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </div>
+            </div>
+          </div>
+
+          {/* Metrics Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
+              <div className="p-3 rounded-lg bg-indigo-50 text-indigo-600 mr-4">
+                <Activity size={24} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Total API Calls</p>
+                <h3 className="text-2xl font-bold text-gray-900">{metrics.totalCalls.toLocaleString()}</h3>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
+              <div className="p-3 rounded-lg bg-green-50 text-green-600 mr-4">
+                <DollarSign size={24} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Current Cost</p>
+                <h3 className="text-2xl font-bold text-gray-900">₹{metrics.currentCost.toFixed(2)}</h3>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
+              <div className="p-3 rounded-lg bg-purple-50 text-purple-600 mr-4">
+                <BarChart3 size={24} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Active APIs</p>
+                <h3 className="text-2xl font-bold text-gray-900">{apis.length}</h3>
+              </div>
+            </div>
+          </div>
+
+          {/* Chart */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Usage Trend (Last 30 Days)</h3>
+            <div className="h-72 w-full">
+              {metrics.usageTrend.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={metrics.usageTrend}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 12}} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 12}} dx={-10} />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Line type="monotone" dataKey="calls" stroke="#4F46E5" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-500">No data available for the selected period.</div>
+              )}
             </div>
           </div>
 
@@ -128,7 +223,7 @@ const Dashboard = () => {
                         {apiItem.apiKey || 'No key generated'}
                       </code>
                       <button
-                        onClick={() => copyToClipboard(apiItem.apiKey, apiItem._id)}
+                         onClick={() => copyToClipboard(apiItem.apiKey, apiItem._id)}
                         className="ml-2 p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-200 rounded-md transition-colors"
                         title="Copy to clipboard"
                       >

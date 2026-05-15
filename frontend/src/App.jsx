@@ -5,6 +5,10 @@ import Dashboard from './pages/Dashboard';
 import Billing from './pages/Billing';
 import ProtectedRoute from './components/ProtectedRoute';
 
+import Analytics from './pages/Analytics';
+import Advanced from './pages/Advanced';
+import ApiPlayground from './pages/ApiPlayground';
+
 function App() {
   return (
     <Router>
@@ -24,6 +28,30 @@ function App() {
           element={
             <ProtectedRoute>
               <Billing />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <Analytics />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/advanced"
+          element={
+            <ProtectedRoute>
+              <Advanced />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/playground"
+          element={
+            <ProtectedRoute>
+              <ApiPlayground />
             </ProtectedRoute>
           }
         />

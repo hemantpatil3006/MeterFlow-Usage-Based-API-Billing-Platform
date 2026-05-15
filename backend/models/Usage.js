@@ -21,6 +21,12 @@ const usageSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    latency: {
+      type: Number,
+    },
+    status: {
+      type: Number,
+    },
   },
   {
     timestamps: true,

@@ -44,12 +44,21 @@ const gatewayMiddleware = [
       }
       
       // 3. Track Usage Asynchronously via BullMQ
-      // We pass the endpoint hit to track usage accurately
-      await usageQueue.add('trackUsage', {
-        apiId,
-        userId,
-        endpoint: req.originalUrl,
-        timestamp: new Date(),
+      // We capture the start time and listen for the response to finish
+      const startTime = Date.now();
+      
+      res.on('finish', async () => {
+        const latency = Date.now() - startTime;
+        const status = res.statusCode;
+
+        await usageQueue.add('trackUsage', {
+          apiId,
+          userId,
+          endpoint: req.originalUrl,
+          latency,
+          status,
+          timestamp: new Date(),
+        });
       });
       
       next();
