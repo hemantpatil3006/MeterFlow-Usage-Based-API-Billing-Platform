@@ -16,6 +16,11 @@ const userSchema = mongoose.Schema(
       type: String,
       required: [true, 'Please add a password'],
     },
+    subscriptionStatus: {
+      type: String,
+      enum: ['active', 'past_due', 'canceled'],
+      default: 'active',
+    },
   },
   {
     timestamps: true,

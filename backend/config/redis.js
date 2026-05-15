@@ -7,6 +7,8 @@ const redisOptions = {
   maxRetriesPerRequest: null, // Required by BullMQ
   enableReadyCheck: false,
   family: 0, // Force IPv4 to prevent ENOENT resolution errors
+  keepAlive: 10000,
+  pingInterval: 10000, // App-level ping to prevent Upstash timeout
 };
 
 // If using Upstash (rediss://), enforce TLS
